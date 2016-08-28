@@ -6,25 +6,36 @@
 # of the MIT license.  See the LICENSE file for details.
 
 import os.path
+from itertools import starmap, zip_longest
 
 from macholib.MachO import MachO
 from .fileutils import save_macho
 
+
+def map(func, *iterables):
+    zipped = zip_longest(*iterables)
+    if func is None:
+        # No need for a NOOP lambda here
+        return zipped
+    return starmap(func, zipped)
+
+
 def modify_macho_file_headers(macho_file_path, modificator_func):
-	""" Modifies headers of a Mach-O file at the given path by calling
-	the modificator function on each header.
-	
-	Returns True on success, otherwise rises an exeption (e.g. from macholib)
-	"""
-	if not os.path.isfile(macho_file_path):
-		raise Exception("You must specify a real executable path as a target")
-		return False
-		
-	m = MachO(macho_file_path)
-	apply_to_headers(m, modificator_func)
-	save_macho(m, macho_file_path)
-	return True
+    """ Modifies headers of a Mach-O file at the given path by calling
+    the modificator function on each header.
+
+    Returns True on success, otherwise rises an exeption (e.g. from macholib)
+    """
+    if not os.path.isfile(macho_file_path):
+        raise Exception("You must specify a real executable path as a target")
+        return False
+
+    m = MachO(macho_file_path)
+    apply_to_headers(m, modificator_func)
+    save_macho(m, macho_file_path)
+    return True
+
 
 def apply_to_headers(macho_object, func):
-	""" Calls the given function on every header in the Mach-O object """
-	map(func, macho_object.headers)
+    """ Calls the given function on every header in the Mach-O object """
+    list(map(func, macho_object.headers))
