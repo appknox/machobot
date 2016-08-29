@@ -49,6 +49,7 @@ def macho_dependencies_list(target_path, header_magic=None):
     lists of weak and strong dependencies respectively.
     """
     MachODeprendencies = namedtuple("MachODeprendecies", "weak strong")
+    # import pdb; pdb.set_trace()
 
     # Convert the magic value into macholib representation if needed
     if isinstance(header_magic, str):
@@ -146,7 +147,7 @@ def generate_dylib_load_command(header, libary_install_name):
     # arches and by 8 bytes on 64-bit arches
     align = 4 if header.header.magic == MH_MAGIC else 8
     aligned_name = libary_install_name + \
-        (b'\x00' * (align - (len(libary_install_name) % align)))
+        (b'\x00' * (align - (len(libary_install_name) % align))).decode()
     # So now we finally can say what size this load_command is
     lc.cmdsize = base + len(aligned_name)
 
